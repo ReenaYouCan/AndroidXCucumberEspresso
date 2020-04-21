@@ -1,0 +1,57 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+
+    defaultConfig {
+        applicationId "com.reamu.acucumber"
+        minSdkVersion 23
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner getInstrumentation(project)
+    }
+    buildTypes {
+        debug {
+            buildConfigField 'String', 'TEST_TAGS', '"' + getTestTags() + '"'
+            buildConfigField 'String', 'TEST_SCENARIO', '"' + getTestScenario() + '"'
+            debuggable true
+        }
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+static def getInstrumentation(Project project) {
+    project.hasProperty('cucumber') ? "com.reamu.acucumber.runner.CucumberTestRunner" : "androidx.test.runner.AndroidJUnitRunner"
+}
+
+def getTestTags() {
+    project.getProperties().get('tags') ?: ''
+}
+
+def getTestScenario() {
+    project.getProperties().get('scenario') ?: ''
+}
+
+configurations.all {
+    resolutionStrategy {
+        force rootProject.libraries.androidXAppcompat
+        force rootProject.libraries.androidXConstrtaintLayout
+    }
+}
+
+dependencies {
+    commonAndroidDepenedencies(it)
+    commonTestDependencies(it)
+    commonAndroidTestDependencies(it)
+}
+
